@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, ButtonLink } from "@/components/button";
 import { Container } from "@/components/container";
 import { PageHeader } from "@/components/page-header";
@@ -9,6 +9,8 @@ import {
   parseLessonSession,
 } from "@/lib/lessons/session-state";
 import type { LessonSessionState } from "@/types/lesson";
+import { useVoice } from "@/hooks/use-voice";
+import { resolveSpokenAnswer } from "@/lib/voice/transcript";
 
 export default function LessonPage() {
   const [session, setSession] = useState<LessonSessionState | null>(null);
@@ -16,6 +18,11 @@ export default function LessonPage() {
   const [submitted, setSubmitted] = useState(false);
   const [correct, setCorrect] = useState(false);
   const [hint, setHint] = useState(false);
+  const handleTranscript = useCallback(
+    (transcript: string) => setAnswer(transcript),
+    [],
+  );
+  const voice = useVoice(handleTranscript);
   useEffect(() => {
     setSession(parseLessonSession(sessionStorage.getItem(LESSON_STORAGE_KEY)));
   }, []);
@@ -33,14 +40,17 @@ export default function LessonPage() {
       </main>
     );
   const { lesson } = session;
+  const spokenInstructions = `${lesson.title}. ${lesson.introduction} ${lesson.activity.prompt}`;
   function submit() {
-    const normalized = answer.trim().toLowerCase();
+    const evaluatedAnswer = resolveSpokenAnswer(answer, lesson.activity.choices)
+      .trim()
+      .toLowerCase();
     const expected = lesson.activity.expectedAnswer;
     const accepted = [
       expected.value,
       ...(expected.acceptedAlternatives ?? []),
     ].map((item) => item.trim().toLowerCase());
-    setCorrect(accepted.includes(normalized));
+    setCorrect(accepted.includes(evaluatedAnswer));
     setSubmitted(true);
   }
   return (
@@ -57,6 +67,39 @@ export default function LessonPage() {
           }
         />
         <div className="mx-auto mt-10 max-w-3xl space-y-6">
+          <section
+            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+            aria-label="Voice controls"
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                onClick={() => voice.speak(spokenInstructions)}
+                disabled={!voice.speechSupported || voice.isSpeaking}
+                aria-label="Speak lesson instructions"
+              >
+                {voice.isSpeaking ? "Speaking…" : "Speak instructions"}
+              </Button>
+              <Button
+                onClick={voice.stopSpeaking}
+                variant="secondary"
+                disabled={!voice.isSpeaking}
+                aria-label="Stop speaking"
+              >
+                Stop
+              </Button>
+              <span
+                className="text-sm font-bold text-slate-600"
+                role="status"
+                aria-live="polite"
+              >
+                {voice.isSpeaking
+                  ? "Asobi is speaking"
+                  : voice.speechSupported
+                    ? "Ready to speak"
+                    : "Speech playback is unavailable; read the instructions below."}
+              </span>
+            </div>
+          </section>
           <section className="rounded-3xl border border-teal-200 bg-teal-50 p-7 sm:p-9">
             <p className="text-lg leading-8 text-slate-700">
               {lesson.introduction}
@@ -101,6 +144,24 @@ export default function LessonPage() {
               </p>
             )}
             <div className="mt-6 flex flex-wrap gap-3">
+              <Button
+                onClick={() => {
+                  voice.startListening();
+                }}
+                variant="secondary"
+                disabled={!voice.recognitionSupported || voice.isListening}
+                aria-label="Speak your answer"
+              >
+                {voice.isListening ? "Listening…" : "Speak answer"}
+              </Button>
+              <Button
+                onClick={voice.stopListening}
+                variant="secondary"
+                disabled={!voice.isListening}
+                aria-label="Stop listening"
+              >
+                Stop microphone
+              </Button>
               <Button onClick={() => setHint(true)} variant="secondary">
                 Show hint
               </Button>
@@ -121,6 +182,23 @@ export default function LessonPage() {
                   : "Submit answer"}
               </Button>
             </div>
+            {voice.isListening ? (
+              <p
+                className="mt-3 rounded-xl bg-teal-50 p-3 font-bold text-teal-900"
+                role="status"
+                aria-live="polite"
+              >
+                Listening for your answer…
+              </p>
+            ) : null}
+            {voice.voiceError ? (
+              <p
+                className="mt-3 rounded-xl bg-amber-50 p-3 font-bold text-amber-900"
+                role="alert"
+              >
+                {voice.voiceError}
+              </p>
+            ) : null}
             {hint ? (
               <p className="mt-4 rounded-xl bg-slate-50 p-3 text-slate-700">
                 {lesson.activity.hint}
