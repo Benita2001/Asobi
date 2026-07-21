@@ -36,11 +36,13 @@ Status: complete for the drawing-understanding slice; lesson planning remains a 
 
 The phase currently validates a normalized drawing, calls server-only vision analysis, and presents structured observations. It does not generate lessons.
 
-Integrate GPT-5.6 vision and structured lesson generation for Mathematics and English, with age bands, prompt versioning, safety controls, and test fixtures.
+Integrate the configured OpenAI vision model and structured lesson generation for Mathematics and English, with age bands, prompt versioning, and safety controls.
 
 Exit criteria: representative drawings consistently produce valid, drawing-grounded lesson plans.
 
 ## Phase 6 — Voice interaction and adaptation
+
+The lesson-planning slice is complete: one drawing-grounded Mathematics or English activity, temporary lesson state, and local answer checking through the real server-side OpenAI integration. Voice and adaptive conversation remain future work.
 
 Add text-to-speech, microphone capture, speech-to-text, answer evaluation, and bounded adaptive lesson turns with accessible fallbacks.
 

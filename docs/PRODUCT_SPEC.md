@@ -72,7 +72,7 @@ The product is designed for children ages 4–12 and should feel playful, encour
 
 ## Hackathon goals
 
-- Demonstrate a memorable use of GPT-5.6 vision and reasoning grounded in a child's creation.
+- Demonstrate a memorable use of the configured OpenAI vision model and reasoning grounded in a child's creation.
 - Show a coherent multimodal loop: image understanding, lesson generation, speech output, speech input, and adaptation.
 - Deliver a polished, reliable vertical slice rather than broad feature coverage.
 - Make the educational value legible to judges through a concise demo and observable adaptation.

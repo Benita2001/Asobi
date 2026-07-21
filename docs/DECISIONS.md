@@ -48,8 +48,14 @@
 - Decision: use the official OpenAI JavaScript SDK Responses API with `responses.parse`, `OPENAI_MODEL`, and a Zod structured-output schema behind `POST /api/drawings/analyze`.
 - Reason: this keeps credentials server-only, validates model output at runtime, and establishes a stable analysis contract without lesson functionality.
 
-## TD-009 — Explicit live-only AI mode
+## TD-009 — Explicit server-side AI configuration
 
 - Status: accepted
-- Decision: document `ASOBI_AI_MODE=live`; no fixture mode is implemented.
+- Decision: require `OPENAI_API_KEY` and `OPENAI_MODEL` for every running AI request.
 - Reason: tests mock the provider seam, while production fails clearly when credentials are missing rather than silently presenting fake analysis.
+
+## TD-010 — Temporary lesson state
+
+- Status: accepted
+- Decision: store only the current validated lesson handoff under `asobi:lesson:v1` with a two-hour expiry; runtime lesson planning always uses the real server-side OpenAI integration.
+- Reason: temporary journey state enables the lesson page without persisting child data. Image data, prompts, credentials, and raw provider responses are excluded.

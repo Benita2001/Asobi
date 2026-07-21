@@ -12,7 +12,7 @@ This repository contains the technical foundation, a polished application shell,
 - TypeScript
 - Tailwind CSS
 - Supabase
-- OpenAI Responses API with GPT-5.6 and vision input
+- OpenAI Responses API with the configured model and vision input
 - OpenAI text-to-speech and speech-to-text
 - Vercel
 
@@ -83,4 +83,4 @@ Preview and production environments should use separate Supabase projects or iso
 
 ## Current status
 
-Phase 5 drawing analysis is implemented behind a server-only OpenAI Responses API boundary. The draw page returns a validated child-friendly observation; no lesson, voice, authentication, database, or permanent memory exists.
+Phase 6 lesson planning is implemented behind a separate server boundary using real server-only OpenAI Responses API requests. Missing credentials produce a clear configuration error; there is no fake runtime fallback. No voice, authentication, database, or permanent memory exists.

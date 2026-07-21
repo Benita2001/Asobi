@@ -64,6 +64,15 @@ Status: complete for the vision-analysis slice; lesson planning remains pending.
 
 ## Phase 6 — Voice interaction and adaptation
 
+Status: complete for age-adaptive lesson planning; voice and adaptive evaluation remain pending.
+
+- [x] Add validated lesson contracts and age-band rules.
+- [x] Add separate lesson-planning API using the real server-side OpenAI integration.
+- [x] Add drawing-grounded subject selection and lesson handoff.
+- [x] Add temporary validated lesson state with expiration.
+- [x] Replace lesson placeholders with deterministic local answer checking.
+- [x] Add lesson contract and session-state tests.
+
 - [ ]
 
 ## Phase 7 — Progress persistence

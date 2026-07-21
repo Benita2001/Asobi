@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button, ButtonLink } from "@/components/button";
 import { DrawingCanvas } from "@/components/drawing/drawing-canvas";
@@ -13,6 +14,7 @@ import { drawingAnalysisSchema } from "@/lib/vision/schemas";
 import type { PreparedDrawing } from "@/types/drawing";
 import type { AgeGroup } from "@/types/journey";
 import type { DrawingAnalysis } from "@/types/vision";
+import { LESSON_STORAGE_KEY } from "@/lib/lessons/session-state";
 
 const ageLabels: Record<AgeGroup, string> = {
   "4-6": "Ages 4–6",
@@ -24,6 +26,7 @@ type PreparedMetadata = Omit<PreparedDrawing, "dataUrl">;
 
 export function DrawingWorkspace() {
   const { ageGroup, isLoaded } = useJourneyState();
+  const router = useRouter();
   const [preparedDrawing, setPreparedDrawing] =
     useState<PreparedDrawing | null>(null);
   const [canvasResetToken, setCanvasResetToken] = useState(0);
@@ -33,6 +36,8 @@ export function DrawingWorkspace() {
   const [preparedMetadata, setPreparedMetadata] =
     useState<PreparedMetadata | null>(null);
   const [analysis, setAnalysis] = useState<DrawingAnalysis | null>(null);
+  const [subject, setSubject] = useState<"auto" | "math" | "english">("auto");
+  const [isPlanning, setIsPlanning] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
 
   if (!isLoaded) {
@@ -161,6 +166,48 @@ export function DrawingWorkspace() {
       );
     } finally {
       setIsProcessing(false);
+    }
+  }
+
+  async function createActivity() {
+    if (!analysis || !ageGroup) return;
+    setIsPlanning(true);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/lessons/plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ageGroup,
+          drawingAnalysis: analysis,
+          subjectPreference: subject,
+        }),
+      });
+      const payload: unknown = await response.json();
+      if (!response.ok) {
+        const error = payload as { error?: { message?: string } };
+        showMessage(
+          error.error?.message ?? "Asobi could not prepare the activity.",
+        );
+        return;
+      }
+      const result = payload as { lesson: unknown };
+      sessionStorage.setItem(
+        LESSON_STORAGE_KEY,
+        JSON.stringify({
+          ageGroup,
+          drawingObservation: analysis.childFriendlyObservation,
+          lesson: result.lesson,
+          createdAt: new Date().toISOString(),
+        }),
+      );
+      router.push("/lesson");
+    } catch {
+      showMessage(
+        "We could not reach Asobi's lesson planner. Please try again.",
+      );
+    } finally {
+      setIsPlanning(false);
     }
   }
 
@@ -327,6 +374,37 @@ export function DrawingWorkspace() {
                 ))}
               </ul>
             </div>
+            <fieldset className="rounded-2xl border border-slate-200 p-4">
+              <legend className="px-1 font-black text-slate-900">
+                Choose a subject
+              </legend>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {(
+                  [
+                    ["auto", "Asobi’s choice"],
+                    ["math", "Mathematics"],
+                    ["english", "English"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <label
+                    key={value}
+                    className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 p-3 font-bold has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-teal-200"
+                  >
+                    <input
+                      type="radio"
+                      name="subject"
+                      value={value}
+                      checked={subject === value}
+                      onChange={() => setSubject(value)}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <Button size="large" onClick={createActivity} disabled={isPlanning}>
+              {isPlanning ? "Planning activity…" : "Create My Activity"}
+            </Button>
           </div>
         </Section>
       ) : null}

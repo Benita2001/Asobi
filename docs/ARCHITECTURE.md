@@ -87,6 +87,13 @@ Static, non-sensitive assets only.
 4. The route returns only validated `DrawingAnalysis` data or a safe error envelope.
 5. The client renders an observation, objects, colors, shapes, and up to three learning directions. No lesson content is generated.
 
+## Phase 6 lesson-planning flow
+
+1. The draw client submits `{ ageGroup, drawingAnalysis, subjectPreference }` to `POST /api/lessons/plan`; the original image is never sent.
+2. The route validates the analysis and preference, then calls the server-only Responses API planner.
+3. The client stores only the validated lesson, age, observation, and timestamp under `asobi:lesson:v1` for up to two hours, then navigates to `/lesson`.
+4. `/lesson` validates temporary state and performs local answer comparison only. It does not call GPT or store progress.
+
 ### Normalized drawing contract
 
 ```ts
