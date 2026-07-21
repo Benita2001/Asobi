@@ -52,6 +52,7 @@ Codex must also inspect current configuration, relevant source files, and git st
 - `lib/drawing/`: browser-safe drawing constraints, validation, and image-preparation utilities.
 - `lib/openai/`: server-only OpenAI client and provider adapters.
 - `lib/prompts/`: versioned prompts, structured-output schemas, and age/subject constraints.
+- `lib/memory/`: browser-local, versioned educational summaries and bounded memory updates.
 - `types/`: shared domain types and public contracts; derive from runtime schemas when possible.
 - `hooks/`: reusable client-only React hooks.
 - `public/`: static public assets with no credentials or private user content.

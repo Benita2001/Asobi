@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useJourneyState } from "@/hooks/use-journey-state";
 import type { AgeGroup } from "@/types/journey";
+import { updateAgeGroup } from "@/lib/memory/learning-memory";
 
 type AgeGroupOption = Readonly<{
   value: AgeGroup;
@@ -42,6 +43,7 @@ export function AgeSelector() {
   function selectAge(age: AgeGroup) {
     setSelectedAge(age);
     setAgeGroup(age);
+    updateAgeGroup(age);
     router.push("/draw");
   }
 

@@ -81,8 +81,26 @@ Status: complete for age-adaptive lesson planning; voice and adaptive evaluation
 
 ## Phase 8 — Safety, quality, and observability
 
+Status: local learning-memory slice complete; backend persistence remains pending.
+
+- [x] Add versioned local educational memory schema and safe storage abstraction.
+- [x] Track age, lesson outcomes, concepts, streak, subjects, interaction mode, and drawing themes.
+- [x] Provide compact memory context to lesson planning without raw private data.
+- [x] Add corruption, migration, limits, and update tests.
+
 - [ ]
 
 ## Phase 9 — Deployment and hackathon demo
 
 - [ ]
+
+## Phase 9 — AI educational scene generation
+
+Status: complete for the temporary scene-illustration slice.
+
+- [x] Add validated SceneSpecification and deterministic scene planner.
+- [x] Add safe educational image prompt construction.
+- [x] Add server-only OpenAI Images API boundary.
+- [x] Cache one generated illustration per active lesson page.
+- [x] Add alt text and friendly generation fallback.
+- [x] Add scene planner, schema, prompt, and exact-count tests.

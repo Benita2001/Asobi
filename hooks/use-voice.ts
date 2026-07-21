@@ -30,49 +30,79 @@ declare global {
 export function useVoice(onTranscript: (text: string) => void) {
   const recognitionRef = useRef<Recognition | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isNarrating, setIsNarrating] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const [recognitionSupported, setRecognitionSupported] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+  const narrationTextRef = useRef<string | null>(null);
 
   useEffect(() => {
-    setSpeechSupported(
-      "speechSynthesis" in window && "SpeechSynthesisUtterance" in window,
-    );
+    setSpeechSupported(typeof window.Audio !== "undefined");
     setRecognitionSupported(
       Boolean(window.SpeechRecognition || window.webkitSpeechRecognition),
     );
     return () => {
-      window.speechSynthesis?.cancel();
+      audioRef.current?.pause();
       recognitionRef.current?.stop();
+      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
     };
   }, []);
 
   const speak = useCallback(
-    (text: string) => {
+    async (text: string) => {
       if (!speechSupported) {
-        setVoiceError("Spoken instructions are not supported in this browser.");
+        setVoiceError(
+          "Audio playback is not supported in this browser. You can read the instructions below.",
+        );
         return;
       }
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.onstart = () => {
-        setVoiceError(null);
-        setIsSpeaking(true);
-      };
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = (event) => {
-        setIsSpeaking(false);
-        if (event.error !== "canceled")
-          setVoiceError("Asobi could not speak this instruction.");
-      };
-      window.speechSynthesis.speak(utterance);
+      setVoiceError(null);
+      if (narrationTextRef.current === text && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        void audioRef.current
+          .play()
+          .catch(() => setVoiceError("Asobi could not play this instruction."));
+        return;
+      }
+      setIsNarrating(true);
+      try {
+        const response = await fetch("/api/voice/narrate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!response.ok) throw new Error("NARRATION_FAILED");
+        const blob = await response.blob();
+        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onplay = () => setIsSpeaking(true);
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          setVoiceError("Asobi could not play this instruction.");
+        };
+        audioRef.current = audio;
+        audioUrlRef.current = url;
+        narrationTextRef.current = text;
+        await audio.play();
+      } catch {
+        setVoiceError(
+          "Asobi could not play narration right now. You can read the instructions below.",
+        );
+      } finally {
+        setIsNarrating(false);
+      }
     },
     [speechSupported],
   );
 
   const stopSpeaking = useCallback(() => {
-    window.speechSynthesis?.cancel();
+    audioRef.current?.pause();
+    if (audioRef.current) audioRef.current.currentTime = 0;
     setIsSpeaking(false);
   }, []);
 
@@ -134,6 +164,7 @@ export function useVoice(onTranscript: (text: string) => void) {
     isSpeaking,
     isListening,
     speechSupported,
+    isNarrating,
     recognitionSupported,
     voiceError,
     speak,

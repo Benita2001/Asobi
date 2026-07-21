@@ -59,3 +59,21 @@
 - Status: accepted
 - Decision: store only the current validated lesson handoff under `asobi:lesson:v1` with a two-hour expiry; runtime lesson planning always uses the real server-side OpenAI integration.
 - Reason: temporary journey state enables the lesson page without persisting child data. Image data, prompts, credentials, and raw provider responses are excluded.
+
+## TD-011 — Browser-local educational memory
+
+- Status: accepted
+- Decision: store versioned, bounded learning summaries in `localStorage` under `asobi:memory:v1`; keep storage access behind `lib/memory`.
+- Reason: Phase 8 needs cross-session educational personalization without introducing backend persistence, identity, or cloud sync. Raw media, transcripts, prompts, and provider responses remain excluded.
+
+## TD-012 — Server-generated lesson narration
+
+- Status: accepted
+- Decision: use `openai.audio.speech.create` behind `POST /api/voice/narrate` with `OPENAI_TTS_MODEL` and `OPENAI_TTS_VOICE`.
+- Reason: provide natural narration without exposing credentials or sending microphone audio to the server. MP3 object URLs are reused only for the current lesson page and never persisted.
+
+## TD-013 — Dedicated educational scene stage
+
+- Status: accepted
+- Decision: separate deterministic scene planning from image rendering. `SceneSpecification` is validated before the server calls the official Images API.
+- Reason: educational intent and exact-count constraints must remain explainable and testable independently from image generation. Images remain temporary page-session data.

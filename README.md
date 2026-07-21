@@ -13,7 +13,7 @@ This repository contains the technical foundation, a polished application shell,
 - Tailwind CSS
 - Supabase
 - OpenAI Responses API with the configured model and vision input
-- OpenAI text-to-speech and speech-to-text
+- OpenAI text-to-speech for narration and browser Speech Recognition for spoken answers
 - Vercel
 
 ## Prerequisites
@@ -83,4 +83,8 @@ Preview and production environments should use separate Supabase projects or iso
 
 ## Current status
 
-Phase 6 lesson planning is implemented behind a separate server boundary using real server-only OpenAI Responses API requests. Missing credentials produce a clear configuration error; there is no fake runtime fallback. No voice, authentication, database, or permanent memory exists.
+Phase 8 local learning memory is implemented in browser `localStorage`. It stores bounded educational summaries only—lesson outcomes, concept progress, subject preferences, age group, and drawing themes. No audio, images, transcripts, prompts, credentials, or backend data are stored.
+
+OpenAI narration is generated on demand by `POST /api/voice/narrate` using `OPENAI_TTS_MODEL` and `OPENAI_TTS_VOICE`. Generated MP3 audio is replayed only during the current lesson page session and is never persisted. Spoken answers continue to use browser Speech Recognition locally.
+
+Phase 9 adds an optional server-side educational illustration generated from a validated `SceneSpecification` through `POST /api/scenes/generate`. Configure `OPENAI_IMAGE_MODEL` in `.env.local`; generated images are held only as a lesson-page object URL and are not persisted.

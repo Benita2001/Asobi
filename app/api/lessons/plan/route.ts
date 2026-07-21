@@ -51,6 +51,7 @@ export async function POST(request: Request) {
       parsed.data.ageGroup,
       analysis.data,
       chosen,
+      parsed.data.memorySummary,
     );
     console.info("lesson_planning_succeeded", {
       requestId,

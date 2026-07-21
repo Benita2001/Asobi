@@ -15,6 +15,10 @@ import type { PreparedDrawing } from "@/types/drawing";
 import type { AgeGroup } from "@/types/journey";
 import type { DrawingAnalysis } from "@/types/vision";
 import { LESSON_STORAGE_KEY } from "@/lib/lessons/session-state";
+import {
+  getMemorySummary,
+  updateDrawingInterests,
+} from "@/lib/memory/learning-memory";
 
 const ageLabels: Record<AgeGroup, string> = {
   "4-6": "Ages 4–6",
@@ -160,6 +164,7 @@ export function DrawingWorkspace() {
       }
       setPreparedMetadata(metadata);
       setAnalysis(parsedAnalysis.data);
+      updateDrawingInterests(parsedAnalysis.data);
     } catch {
       showMessage(
         "We could not reach Asobi's drawing service. Please try again.",
@@ -181,6 +186,7 @@ export function DrawingWorkspace() {
           ageGroup,
           drawingAnalysis: analysis,
           subjectPreference: subject,
+          memorySummary: getMemorySummary(),
         }),
       });
       const payload: unknown = await response.json();

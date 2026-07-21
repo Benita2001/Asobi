@@ -50,6 +50,8 @@ Exit criteria: a child can complete a short lesson without typing and receive an
 
 ## Phase 7 — Progress persistence
 
+Phase 8 local learning memory is complete. Backend progress persistence remains intentionally deferred.
+
 Implement the approved Supabase schema, Row Level Security, session recovery, and a minimal adult-readable progress summary.
 
 Exit criteria: authorized progress survives refresh and cannot be accessed across users.

@@ -8,7 +8,7 @@ The Next.js application shell, technical toolchain, browser-local drawing input,
 
 ## System boundaries
 
-- Browser client: drawing input, image upload, audio capture and playback, interaction state, and accessible feedback.
+- Browser client: drawing input, image upload, generated-audio playback, local Speech Recognition for answers, interaction state, and accessible feedback.
 - Next.js application: pages, server components, route handlers or server actions, request validation, orchestration, and response shaping.
 - OpenAI: drawing interpretation, structured lesson generation and adaptation, speech transcription, and speech synthesis.
 - Supabase: identity if selected, relational progress data, and controlled object storage where required.
@@ -64,8 +64,8 @@ Static, non-sensitive assets only.
 2. The server receives a bounded, validated request and establishes the child-safe lesson context.
 3. A server-side OpenAI adapter submits the drawing with age, subject, and structured-output constraints.
 4. The application validates the model response before presenting lesson content.
-5. Text-to-speech generates or streams an audible prompt to the browser.
-6. The browser records a bounded response with explicit microphone permission.
+5. The browser sends only concise validated lesson narration text to `POST /api/voice/narrate`; the server calls OpenAI Audio Speech and returns MP3 bytes.
+6. The browser reuses that audio only for the current lesson session and records a bounded response with explicit microphone permission using local Speech Recognition.
 7. The server transcribes audio, evaluates the answer in lesson context, and requests the next structured instructional step.
 8. Supabase persists only the approved activity and progress fields.
 9. The browser renders and speaks the next step or the completion summary.
@@ -93,6 +93,13 @@ Static, non-sensitive assets only.
 2. The route validates the analysis and preference, then calls the server-only Responses API planner.
 3. The client stores only the validated lesson, age, observation, and timestamp under `asobi:lesson:v1` for up to two hours, then navigates to `/lesson`.
 4. `/lesson` validates temporary state and performs local answer comparison only. It does not call GPT or store progress.
+
+## Phase 8 learning-memory flow
+
+1. Age selection, drawing analysis, and lesson completion update the versioned `asobi:memory:v1` localStorage record.
+2. Only bounded educational summaries are retained: age group, subject usage, drawing themes, lesson summaries, concept attempts/correct counts, streak, and preferred interaction.
+3. Before lesson planning, the client sends a compact memory summary alongside validated `DrawingAnalysis`; the original image, transcripts, raw answers, and provider responses are never included.
+4. Corrupt or unknown-version storage safely resets to an empty memory record. The storage boundary is isolated in `lib/memory` for future replacement.
 
 ### Normalized drawing contract
 
@@ -147,3 +154,17 @@ The exact schema is a Phase 2 design task. Likely entities are profiles or learn
 - Integration tests for persistence and server boundaries.
 - End-to-end tests for the primary drawing-to-lesson flow, including denied microphone permission and provider failure.
 - Manual checks with representative ages, subjects, drawing complexity, accents, and noisy audio.
+
+## Phase 8 narration flow
+
+1. The lesson client deterministically builds concise narration from the title, introduction, activity prompt, and multiple-choice labels only.
+2. A user action requests `POST /api/voice/narrate`; the server validates bounded text and resolves `OPENAI_TTS_MODEL` and `OPENAI_TTS_VOICE` from server-only configuration.
+3. OpenAI returns MP3 bytes, held in a browser object URL for the current lesson page only. Replay reuses that URL and Stop resets playback.
+4. Audio is never written to storage, uploaded elsewhere, or persisted. The interface discloses AI-generated narration. Speech Recognition remains browser-based and microphone audio is never sent to OpenAI.
+
+## Phase 9 scene flow
+
+1. The lesson page derives one validated `SceneSpecification` from the current `LessonPlan`; the planner decides the educational visual and the image provider only renders it.
+2. The browser sends the specification to `POST /api/scenes/generate`; the server calls the official OpenAI Images API with `OPENAI_IMAGE_MODEL`.
+3. The response is returned as PNG bytes and held in a page-session object URL. It is generated once per lesson, includes planner-derived alt text, and is revoked when the page unmounts.
+4. Image failures show a friendly fallback while leaving the lesson controls usable. No image is written to disk, local storage, session storage, Supabase, or a database.

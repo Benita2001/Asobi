@@ -33,6 +33,7 @@ export async function planLesson(
   ageGroup: "4-6" | "7-9" | "10-12",
   analysis: DrawingAnalysis,
   subject: "math" | "english",
+  memorySummary?: string,
 ): Promise<LessonPlan> {
   let response;
   try {
@@ -44,7 +45,12 @@ export async function planLesson(
           content: [
             {
               type: "input_text",
-              text: buildLessonPlanningPrompt(ageGroup, subject, analysis),
+              text: buildLessonPlanningPrompt(
+                ageGroup,
+                subject,
+                analysis,
+                memorySummary,
+              ),
             },
           ],
         },

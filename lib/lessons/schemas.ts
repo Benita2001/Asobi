@@ -32,6 +32,7 @@ export const planLessonRequestSchema = z.object({
   ageGroup: z.enum(["4-6", "7-9", "10-12"]),
   drawingAnalysis: z.unknown(),
   subjectPreference: subjectPreferenceSchema.optional().default("auto"),
+  memorySummary: z.string().max(1200).optional(),
 });
 export const planLessonResponseSchema = z.object({ lesson: lessonPlanSchema });
 export type LessonPlan = z.infer<typeof lessonPlanSchema>;
