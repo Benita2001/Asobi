@@ -4,7 +4,7 @@
 
 Asobi is planned as a Next.js 15 App Router application deployed on Vercel. The browser owns drawing and voice interactions. Server-side application boundaries coordinate OpenAI and Supabase so privileged credentials never reach the client.
 
-The Next.js application shell, technical toolchain, and browser-local drawing input are initialized. No external analysis, voice, authentication, or persistence integration exists yet.
+The Next.js application shell, technical toolchain, browser-local drawing input, and server-only Phase 5 vision analysis boundary are initialized. Lesson generation, voice, authentication, and persistence do not yet exist.
 
 ## System boundaries
 
@@ -40,6 +40,10 @@ Server-only OpenAI client creation and narrowly scoped adapters for responses, v
 
 Versioned prompt templates, structured-output schemas, age-band guidance, subject constraints, and safety instructions. Prompts should be testable and separated from transport code.
 
+### `lib/vision/`
+
+Runtime schemas and request validation for drawing analysis. The server limit is an 8 MB decoded payload and 4096 pixels per dimension. Images are never written to disk or persisted.
+
 ### `types/`
 
 Shared domain types and API contracts. Prefer deriving TypeScript types from runtime schemas when a payload crosses a trust boundary.
@@ -74,6 +78,14 @@ Static, non-sensitive assets only.
 4. Uploads are restricted to PNG, JPEG, or WebP and 8 MB. The browser temporarily creates an object URL to confirm the file decodes, converts the file to a data URL, reads dimensions, and revokes the object URL.
 5. Canvas and upload adapters produce one `PreparedDrawing`. Selecting one source clears the competing submission state.
 6. The mock handoff validates the contract and displays metadata without logging or displaying the data URL. No network request occurs.
+
+## Phase 5 vision-analysis flow
+
+1. The draw client submits `{ ageGroup, drawing }` to `POST /api/drawings/analyze`.
+2. The route validates the request, data URL, MIME signature, decoded size, and dimensions.
+3. A server-only OpenAI adapter sends the image and age-aware safety prompt through `responses.parse` with Zod structured output.
+4. The route returns only validated `DrawingAnalysis` data or a safe error envelope.
+5. The client renders an observation, objects, colors, shapes, and up to three learning directions. No lesson content is generated.
 
 ### Normalized drawing contract
 

@@ -9,8 +9,10 @@ import { DrawingUpload } from "@/components/drawing/drawing-upload";
 import { Section } from "@/components/section";
 import { useJourneyState } from "@/hooks/use-journey-state";
 import { isPreparedDrawing } from "@/lib/drawing/validation";
+import { drawingAnalysisSchema } from "@/lib/vision/schemas";
 import type { PreparedDrawing } from "@/types/drawing";
 import type { AgeGroup } from "@/types/journey";
+import type { DrawingAnalysis } from "@/types/vision";
 
 const ageLabels: Record<AgeGroup, string> = {
   "4-6": "Ages 4–6",
@@ -30,6 +32,7 @@ export function DrawingWorkspace() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [preparedMetadata, setPreparedMetadata] =
     useState<PreparedMetadata | null>(null);
+  const [analysis, setAnalysis] = useState<DrawingAnalysis | null>(null);
   const messageRef = useRef<HTMLDivElement>(null);
 
   if (!isLoaded) {
@@ -86,6 +89,7 @@ export function DrawingWorkspace() {
 
     setPreparedDrawing(drawing);
     setPreparedMetadata(null);
+    setAnalysis(null);
     if (drawing) {
       setMessage(null);
     }
@@ -95,6 +99,7 @@ export function DrawingWorkspace() {
     setCanvasResetToken((token) => token + 1);
     setPreparedDrawing(drawing);
     setPreparedMetadata(null);
+    setAnalysis(null);
     setMessage(null);
   }
 
@@ -106,6 +111,7 @@ export function DrawingWorkspace() {
     }
     setPreparedDrawing(null);
     setPreparedMetadata(null);
+    setAnalysis(null);
     setMessage(null);
   }
 
@@ -121,11 +127,41 @@ export function DrawingWorkspace() {
 
     setMessage(null);
     setIsProcessing(true);
-    await new Promise((resolve) => window.setTimeout(resolve, 650));
-    const { dataUrl: _dataUrl, ...metadata } = preparedDrawing;
-    void _dataUrl;
-    setPreparedMetadata(metadata);
-    setIsProcessing(false);
+    try {
+      const response = await fetch("/api/drawings/analyze", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ageGroup, drawing: preparedDrawing }),
+      });
+      const payload: unknown = await response.json();
+      if (!response.ok) {
+        const error = payload as {
+          error?: { message?: string; retryable?: boolean };
+        };
+        showMessage(
+          error.error?.message ??
+            "Asobi could not understand the drawing right now.",
+        );
+        return;
+      }
+      const { dataUrl: _dataUrl, ...metadata } = preparedDrawing;
+      void _dataUrl;
+      const parsedAnalysis = drawingAnalysisSchema.safeParse(payload);
+      if (!parsedAnalysis.success) {
+        showMessage(
+          "Asobi returned an incomplete drawing observation. Please try again.",
+        );
+        return;
+      }
+      setPreparedMetadata(metadata);
+      setAnalysis(parsedAnalysis.data);
+    } catch {
+      showMessage(
+        "We could not reach Asobi's drawing service. Please try again.",
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   return (
@@ -199,8 +235,7 @@ export function DrawingWorkspace() {
               Ready for the next step?
             </h2>
             <p className="mt-1 leading-7 text-slate-600">
-              This phase prepares the drawing locally. Nothing is sent to AI or
-              external storage.
+              Asobi will look at this drawing and describe what it notices.
             </p>
           </div>
           <Button
@@ -209,7 +244,7 @@ export function DrawingWorkspace() {
             disabled={isProcessing}
             onClick={createLesson}
           >
-            {isProcessing ? "Preparing drawing…" : "Create My Lesson"}
+            {isProcessing ? "Looking closely…" : "Discover My Drawing"}
           </Button>
         </div>
 
@@ -252,6 +287,49 @@ export function DrawingWorkspace() {
           </div>
         ) : null}
       </div>
+
+      {analysis ? (
+        <Section
+          icon="👀"
+          title="What Asobi noticed"
+          description="This is a drawing observation only. Lesson planning comes later."
+        >
+          <div className="space-y-5">
+            <p className="rounded-2xl bg-teal-50 p-5 text-lg leading-8 font-bold text-teal-950">
+              {analysis.childFriendlyObservation}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <h3 className="font-black text-slate-900">Objects</h3>
+                <p className="mt-2 text-slate-600">
+                  {analysis.objects.length > 0
+                    ? analysis.objects.map((object) => object.name).join(", ")
+                    : "No clear objects yet"}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900">Colors and shapes</h3>
+                <p className="mt-2 text-slate-600">
+                  {[...analysis.colors, ...analysis.shapes].join(", ") ||
+                    "No clear colors or shapes yet"}
+                </p>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-black text-slate-900">
+                Possible learning directions
+              </h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-slate-600">
+                {analysis.educationalHooks.map((hook) => (
+                  <li key={`${hook.subject}-${hook.concept}`}>
+                    {hook.concept}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Section>
+      ) : null}
     </div>
   );
 }

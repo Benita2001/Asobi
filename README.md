@@ -55,9 +55,9 @@ Before opening a pull request, run `npm run lint`, `npm run typecheck`, `npm run
 ## Local drawing journey
 
 - The chosen age group is stored under `asobi:journey:v1` in browser `sessionStorage` and lasts only for the current tab session.
-- The drawing canvas and image upload are processed entirely in the browser.
+- The drawing canvas and upload are prepared in the browser, then sent only to the server analysis boundary.
 - Accepted uploads are PNG, JPEG, and WebP files up to 8 MB.
-- Clicking **Create My Lesson** prepares local drawing metadata only. Phase 4 does not send images to an API, AI provider, database, or external storage.
+- Clicking **Discover My Drawing** submits a validated image to `POST /api/drawings/analyze`. Images are not persisted and lesson generation is not implemented yet.
 - Session journey state is temporary interaction context, not permanent learning progress or memory.
 
 ## Deployment
@@ -83,4 +83,4 @@ Preview and production environments should use separate Supabase projects or iso
 
 ## Current status
 
-Phase 4 drawing input is implemented locally. Children can retain an age choice for the browser session, draw with native canvas tools, validate and preview an image upload, and prepare one normalized drawing payload. No voice, AI, authentication, database, external upload, permanent memory, or lesson-generation functionality exists.
+Phase 5 drawing analysis is implemented behind a server-only OpenAI Responses API boundary. The draw page returns a validated child-friendly observation; no lesson, voice, authentication, database, or permanent memory exists.

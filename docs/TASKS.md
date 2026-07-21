@@ -53,7 +53,14 @@ Status: complete.
 
 ## Phase 5 — Personalized lesson generation
 
-- [ ]
+Status: complete for the vision-analysis slice; lesson planning remains pending.
+
+- [x] Add server-only Responses API vision analysis.
+- [x] Validate request and structured model output at runtime.
+- [x] Connect the draw page to the analysis endpoint.
+- [x] Add safe errors, bounded image limits, and prompt-injection protections.
+- [x] Add mocked contract tests and automated validation.
+- [ ] Generate Mathematics or English lessons from analysis.
 
 ## Phase 6 — Voice interaction and adaptation
 

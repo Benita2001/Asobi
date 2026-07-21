@@ -32,6 +32,10 @@ Exit criteria: a drawing can move safely from browser input to a validated, mock
 
 ## Phase 5 — Personalized lesson generation
 
+Status: complete for the drawing-understanding slice; lesson planning remains a later scope boundary.
+
+The phase currently validates a normalized drawing, calls server-only vision analysis, and presents structured observations. It does not generate lessons.
+
 Integrate GPT-5.6 vision and structured lesson generation for Mathematics and English, with age bands, prompt versioning, safety controls, and test fixtures.
 
 Exit criteria: representative drawings consistently produce valid, drawing-grounded lesson plans.

@@ -41,3 +41,15 @@
 - Status: accepted
 - Decision: normalize canvas and validated upload inputs into a `PreparedDrawing` containing a data URL, MIME type, dimensions, source, and optional original-file metadata.
 - Reason: a single typed contract isolates image preparation from visual components and gives Phase 5 a consistent input. Data URLs avoid external storage in Phase 4 and must not be logged or persisted.
+
+## TD-008 — Server-only vision analysis boundary
+
+- Status: accepted
+- Decision: use the official OpenAI JavaScript SDK Responses API with `responses.parse`, `OPENAI_MODEL`, and a Zod structured-output schema behind `POST /api/drawings/analyze`.
+- Reason: this keeps credentials server-only, validates model output at runtime, and establishes a stable analysis contract without lesson functionality.
+
+## TD-009 — Explicit live-only AI mode
+
+- Status: accepted
+- Decision: document `ASOBI_AI_MODE=live`; no fixture mode is implemented.
+- Reason: tests mock the provider seam, while production fails clearly when credentials are missing rather than silently presenting fake analysis.

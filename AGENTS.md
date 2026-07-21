@@ -73,6 +73,7 @@ Codex must also inspect current configuration, relevant source files, and git st
 - Keep public API contracts stable and documented.
 - Keep `PreparedDrawing` image data browser-local until an explicitly approved server boundary is implemented.
 - Treat `asobi:journey:v1` session state as temporary route context, never as permanent learning memory.
+- Phase 5 permits only the documented `/api/drawings/analyze` server boundary; keep lesson, voice, persistence, and authentication outside it.
 
 ## Change control
 
