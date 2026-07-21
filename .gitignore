@@ -1,0 +1,40 @@
+# Dependencies
+/node_modules/
+
+# Next.js output
+/.next/
+/out/
+
+# Production output
+/build/
+/dist/
+
+# Tests and coverage
+/coverage/
+
+# Local environment files
+.env*
+!.env.example
+
+# Vercel
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating systems and editors
+.DS_Store
+.idea/
+.vscode/
+
+# Local data and media
+*.db
+*.sqlite
+*.sqlite3
+recordings/
+uploads/
