@@ -80,7 +80,14 @@ export default function LessonPage() {
             eyebrow="Learning adventure"
             title="Let’s make a new activity"
             description="This lesson session is missing or has expired."
-            action={<ButtonLink href="/draw">Back to drawing</ButtonLink>}
+            action={
+              <ButtonLink
+                href="/draw"
+                onClick={() => sessionStorage.removeItem(LESSON_STORAGE_KEY)}
+              >
+                Create a new lesson
+              </ButtonLink>
+            }
           />
         </Container>
       </main>
@@ -164,6 +171,26 @@ export default function LessonPage() {
             <p className="mt-4 font-bold text-teal-900">
               Goal: {lesson.learningObjective}
             </p>
+          </section>
+          <section
+            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+            aria-label="Your drawing"
+          >
+            <h2 className="text-xl font-black text-slate-900">Your Drawing</h2>
+            {session.drawing ? (
+              <Image
+                unoptimized
+                width={session.drawing.width}
+                height={session.drawing.height}
+                className="mt-4 max-h-[28rem] w-full rounded-2xl object-contain"
+                src={session.drawing.dataUrl}
+                alt="Your original drawing"
+              />
+            ) : (
+              <p className="mt-4 rounded-xl bg-slate-50 p-4 text-slate-600">
+                Your original drawing is not available in this lesson session.
+              </p>
+            )}
           </section>
           <section
             className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm"

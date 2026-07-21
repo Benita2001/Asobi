@@ -7,7 +7,7 @@ let client: OpenAI | undefined;
 export function getOpenAIClient(): OpenAI {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured.");
-  client ??= new OpenAI({ apiKey, timeout: 20_000, maxRetries: 0 });
+  client ??= new OpenAI({ apiKey, timeout: 60_000, maxRetries: 0 });
   return client;
 }
 

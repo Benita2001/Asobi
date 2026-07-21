@@ -24,7 +24,7 @@ export const lessonPlanSchema = z.object({
   }),
   encouragement: text(180),
   completionMessage: text(240),
-  skills: z.array(text(60)).min(1).max(5),
+  skills: z.array(text(60)).length(1),
   difficulty: z.enum(["beginner", "developing", "confident"]),
   safetyNotes: z.array(text(160)).max(5),
 });
@@ -39,6 +39,20 @@ export type LessonPlan = z.infer<typeof lessonPlanSchema>;
 
 export function isLessonPlanConsistent(lesson: LessonPlan): boolean {
   const { activity } = lesson;
+  const youngLearner = lesson.ageGroup === "4-6" || lesson.ageGroup === "7-9";
+  const concise = activity.prompt.length <= 160;
+  const multiStep = /\b(and then|then|after)\b/i.test(activity.prompt);
+  const mixedObjectives =
+    /\b(multiply|multiplication|divide|division)\b/i.test(
+      lesson.learningObjective,
+    ) && /\b(grammar|vocabulary|spelling)\b/i.test(lesson.learningObjective);
+  if (
+    lesson.skills.length !== 1 ||
+    !concise ||
+    (youngLearner && multiStep) ||
+    mixedObjectives
+  )
+    return false;
   if (activity.type === "multiple_choice") {
     return Boolean(
       activity.choices &&

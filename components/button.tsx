@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { MouseEventHandler } from "react";
 
 type ButtonVariant = "primary" | "secondary";
 type ButtonSize = "default" | "large";
@@ -58,6 +59,7 @@ type ButtonLinkProps = Readonly<{
   href: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 }>;
 
 export function ButtonLink({
@@ -66,9 +68,14 @@ export function ButtonLink({
   href,
   size = "default",
   variant = "primary",
+  onClick,
 }: ButtonLinkProps) {
   return (
-    <Link className={buttonStyles(variant, size, className)} href={href}>
+    <Link
+      className={buttonStyles(variant, size, className)}
+      href={href}
+      onClick={onClick}
+    >
       {children}
     </Link>
   );

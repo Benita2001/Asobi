@@ -3,6 +3,7 @@ export const LESSON_STORAGE_KEY = "asobi:lesson:v1";
 export const LESSON_EXPIRATION_MS = 2 * 60 * 60 * 1000;
 import type { LessonSessionState } from "@/types/lesson";
 import { drawingAnalysisSchema } from "@/lib/vision/schemas";
+import { isPreparedDrawing } from "@/lib/drawing/validation";
 export function parseLessonSession(
   value: string | null,
 ): LessonSessionState | null {
@@ -23,6 +24,7 @@ export function parseLessonSession(
     const drawingAnalysis = drawingAnalysisSchema.safeParse(
       item.drawingAnalysis,
     );
+    const drawing = isPreparedDrawing(item.drawing) ? item.drawing : undefined;
     return lesson.success
       ? {
           ageGroup: item.ageGroup as "4-6" | "7-9" | "10-12",
@@ -31,6 +33,7 @@ export function parseLessonSession(
           drawingAnalysis: drawingAnalysis.success
             ? drawingAnalysis.data
             : undefined,
+          drawing,
           createdAt: item.createdAt,
         }
       : null;

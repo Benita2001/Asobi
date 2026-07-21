@@ -185,6 +185,7 @@ export function DrawingWorkspace() {
         body: JSON.stringify({
           ageGroup,
           drawingAnalysis: analysis,
+          drawing: preparedDrawing,
           subjectPreference: subject,
           memorySummary: getMemorySummary(),
         }),
@@ -204,6 +205,7 @@ export function DrawingWorkspace() {
           ageGroup,
           drawingObservation: analysis.childFriendlyObservation,
           drawingAnalysis: analysis,
+          drawing: preparedDrawing,
           lesson: result.lesson,
           createdAt: new Date().toISOString(),
         }),
