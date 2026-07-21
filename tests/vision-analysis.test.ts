@@ -62,6 +62,18 @@ describe("vision analysis boundary", () => {
       schemaVersion: "1.0",
       summary: "A rocket and stars.",
       scene: "A night sky",
+      visualIdentity: {
+        primarySubject: "rocket",
+        secondarySubjects: ["star"],
+        dominantColors: ["blue", "red"],
+        accessories: ["round window"],
+        distinctiveFeatures: ["orange flame"],
+        facialExpression: "smiling",
+        pose: "flying",
+        artStyle: "child-drawn cartoon",
+        composition: "centered",
+        backgroundElements: ["stars"],
+      },
       objects: [
         { name: "rocket", count: 1, confidence: 0.95, attributes: ["red"] },
       ],

@@ -18,6 +18,9 @@ export const sceneSpecificationSchema = z
     ]),
     objectCount: z.number().int().nonnegative().nullable(),
     expectedVisualAnswer: z.string().trim().max(120).nullable(),
+    preservedFeatures: z.array(text(160)).max(8),
+    educationalTransformation: text(500),
+    reasoningSummary: text(300),
   })
   .strict();
 export type SceneSpecification = z.infer<typeof sceneSpecificationSchema>;

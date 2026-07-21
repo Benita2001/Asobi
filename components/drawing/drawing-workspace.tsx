@@ -203,6 +203,7 @@ export function DrawingWorkspace() {
         JSON.stringify({
           ageGroup,
           drawingObservation: analysis.childFriendlyObservation,
+          drawingAnalysis: analysis,
           lesson: result.lesson,
           createdAt: new Date().toISOString(),
         }),

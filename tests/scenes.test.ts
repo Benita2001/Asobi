@@ -32,12 +32,46 @@ const lesson = {
 
 describe("scene planning", () => {
   it("creates a valid exact-count specification with safe prompt rules", () => {
-    const scene = planScene(lesson);
+    const scene = planScene(lesson, {
+      schemaVersion: "1.0",
+      summary: "A blue rocket with a round window and orange flames.",
+      scene: "space",
+      visualIdentity: {
+        primarySubject: "rocket",
+        secondarySubjects: ["stars"],
+        dominantColors: ["blue"],
+        accessories: ["round window"],
+        distinctiveFeatures: ["orange flames"],
+        facialExpression: "smiling",
+        pose: "flying",
+        artStyle: "child drawing",
+        composition: "centered",
+        backgroundElements: ["space"],
+      },
+      objects: [
+        {
+          name: "rocket",
+          count: 1,
+          confidence: 0.95,
+          attributes: ["round window", "orange flames"],
+        },
+      ],
+      colors: ["blue"],
+      shapes: ["circle"],
+      visibleText: [],
+      educationalHooks: [],
+      childFriendlyObservation: "A rocket.",
+      uncertaintyNotes: [],
+    });
     expect(scene.objectCount).toBe(3);
     expect(sceneSpecificationSchema.parse(scene)).toEqual(scene);
     const prompt = buildScenePrompt(scene);
-    expect(prompt).toContain("exactly 3 smiling rockets");
-    expect(prompt).toContain("No text");
+    expect(prompt).toContain("primary subject: rocket");
+    expect(prompt).toContain("exactly 3 copies");
+    expect(prompt.indexOf("inspired by the child's drawing")).toBeLessThan(
+      prompt.indexOf("Adapt the scene"),
+    );
+    expect(prompt).toContain("Do NOT include text");
     expect(prompt).toContain("watermarks");
   });
 });

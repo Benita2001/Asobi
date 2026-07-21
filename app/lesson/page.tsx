@@ -41,7 +41,11 @@ export default function LessonPage() {
     if (!session || sceneKeyRef.current === session.lesson.id) return;
     sceneKeyRef.current = session.lesson.id;
     let cancelled = false;
-    const scene = planScene(session.lesson);
+    const scene = planScene(
+      session.lesson,
+      session.drawingAnalysis,
+      session.ageGroup,
+    );
     fetch("/api/scenes/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -175,7 +179,10 @@ export default function LessonPage() {
                 height={1024}
                 className="mt-4 aspect-square w-full rounded-2xl object-cover"
                 src={sceneUrl}
-                alt={planScene(lesson).altText}
+                alt={
+                  planScene(lesson, session.drawingAnalysis, session.ageGroup)
+                    .altText
+                }
               />
             ) : sceneError ? (
               <p className="mt-4 rounded-xl bg-white p-4 font-bold text-amber-900">

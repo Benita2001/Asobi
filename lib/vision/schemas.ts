@@ -13,6 +13,18 @@ export const drawingAnalysisSchema = z.object({
   schemaVersion: z.literal("1.0"),
   summary: boundedText(500),
   scene: z.union([boundedText(240), z.null()]),
+  visualIdentity: z.object({
+    primarySubject: boundedText(120),
+    secondarySubjects: z.array(boundedText(80)).max(8),
+    dominantColors: z.array(boundedText(40)).max(8),
+    accessories: z.array(boundedText(80)).max(8),
+    distinctiveFeatures: z.array(boundedText(120)).max(10),
+    facialExpression: z.string().trim().max(80).nullable(),
+    pose: z.string().trim().max(100).nullable(),
+    artStyle: boundedText(120),
+    composition: boundedText(160),
+    backgroundElements: z.array(boundedText(80)).max(8),
+  }),
   objects: z
     .array(
       z.object({
